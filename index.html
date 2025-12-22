@@ -229,8 +229,8 @@
             <div class="tag">Live transmission • late-night work fuel</div>
             </div>
       </div>
-      <div class="pill">24/7 • press play</div>
-    </div>
+      <div class="pill" id="pillText">checking signal…</div>
+        </div>
   </header>
 
   <main>
@@ -239,7 +239,8 @@
         <div class="now">
           <div class="label">Now Playing</div>
           
-          <p class="title" id="statusLine">Ready when you are.</p>
+          <p class="title" id="statusLine">Checking signal…</p>
+
           <div class="small" id="streamHint">Stream: <span class="kbd" id="streamUrlLabel">STREAM_URL_HERE</span></div>
         </div>
         <div class="controls">
@@ -402,6 +403,59 @@ async function updateNowPlaying() {
 updateNowPlaying();
 setInterval(updateNowPlaying, 5000);
 </script>
+
+<script>
+  const NOWPLAYING_URL = "https://a7.asurahosting.com/api/nowplaying/carbon_radio";
+  const pill = document.getElementById("pillText");
+  const statusLine = document.getElementById("statusLine");
+
+  function setPill(text, glow) {
+    if (!pill) return;
+    pill.textContent = text;
+
+    // subtle glow when live
+    pill.style.boxShadow = glow
+      ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
+      : "none";
+    pill.style.borderColor = glow ? "rgba(45,226,230,.45)" : "rgba(255,255,255,.14)";
+  }
+
+  function setStatus(text) {
+    if (!statusLine) return;
+    statusLine.textContent = text;
+  }
+
+  async function tick() {
+    try {
+      const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      if (data.is_online) {
+        setPill("ON AIR", true);
+
+        const song = data?.now_playing?.song || {};
+        const line =
+          (song.artist && song.title) ? `${song.artist} — ${song.title}`
+          : (song.text ? song.text : "Live transmission");
+
+        setStatus(line);
+      } else {
+        setPill("OFF AIR", false);
+        setStatus("Station offline.");
+      }
+    } catch (err) {
+      // If AzuraCast can’t be reached, treat as offline
+      setPill("OFF AIR", false);
+      setStatus("Signal check failed (AzuraCast unreachable).");
+      console.log("Now Playing error:", err);
+    }
+  }
+
+  tick();
+  setInterval(tick, 5000);
+</script>
+
 
 </body>
 </html>
