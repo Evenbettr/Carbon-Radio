@@ -1,8 +1,7 @@
 # Carbon-Radio
 Songs for travelers moving by myth and memory
-# Cosmic Station
 
-A minimal live radio station page built for GitHub Pages.
+Sometime live radio station but usually Im just working on other people projects listening to this.
 
 Press play. Let it run. No distractions.
 
