@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cosmic Station</title>
+  <meta name="description" content="Live cosmic radio — press play and drift." />
+  <style>
+    :root{
+      --bg0:#05060d;
+      --bg1:#0b1030;
+      --ink:#e9ecff;
+      --muted:#b7bce6;
+      --card: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.14);
+      --glow: rgba(140,115,255,.35);
+      --accent:#8c73ff;
+      --accent2:#2de2e6;
+      --radius: 18px;
+      --shadow: 0 18px 70px rgba(0,0,0,.55);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      color:var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(140,115,255,.18), transparent 60%),
+        radial-gradient(900px 600px at 80% 20%, rgba(45,226,230,.12), transparent 55%),
+        radial-gradient(900px 700px at 50% 80%, rgba(255,100,200,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+    .stars:before, .stars:after{
+      content:"";
+      position:fixed;
+      inset:-50%;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.9) 50%, transparent 55%),
+        radial-gradient(1px 1px at 80% 30%, rgba(255,255,255,.7) 50%, transparent 55%),
+        radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,.6) 50%, transparent 55%),
+        radial-gradient(1px 1px at 60% 50%, rgba(255,255,255,.8) 50%, transparent 55%),
+        radial-gradient(1px 1px at 25% 85%, rgba(255,255,255,.5) 50%, transparent 55%),
+        radial-gradient(2px 2px at 70% 80%, rgba(255,255,255,.35) 50%, transparent 55%);
+      opacity:.35;
+      filter: blur(.2px);
+      animation: drift 26s linear infinite;
+      pointer-events:none;
+      transform: translate3d(0,0,0);
+    }
+    .stars:after{opacity:.18; animation-duration: 40s; transform: translate3d(-20px,10px,0)}
+    @keyframes drift{
+      from{transform: translate3d(0,0,0)}
+      to{transform: translate3d(80px,40px,0)}
+    }
+    header{
+      max-width: 980px;
+      margin: 42px auto 0;
+      padding: 0 18px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom: 18px;
+    }
+    .logo{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .mark{
+      width:44px;height:44px;
+      border-radius: 14px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), transparent 45%),
+        radial-gradient(circle at 70% 70%, rgba(45,226,230,.18), transparent 55%),
+        linear-gradient(135deg, rgba(140,115,255,.45), rgba(45,226,230,.25));
+      border: 1px solid var(--stroke);
+      box-shadow: 0 0 0 6px rgba(140,115,255,.10), 0 18px 60px rgba(140,115,255,.16);
+    }
+    h1{
+      font-size: clamp(22px, 3.6vw, 34px);
+      margin:0;
+      letter-spacing: .4px;
+    }
+    .tag{
+      color:var(--muted);
+      font-size: 14px;
+      margin-top: 2px;
+    }
+    .pill{
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.04);
+      padding: 8px 10px;
+      border-radius: 999px;
+      white-space:nowrap;
+    }
+
+    main{
+      max-width: 980px;
+      margin: 18px auto 60px;
+      padding: 0 18px;
+      display:grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap: 18px;
+    }
+    @media (max-width: 860px){
+      main{grid-template-columns:1fr}
+    }
+    .card{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+    .playerTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .now{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .now .label{
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .now .title{
+      font-size: 18px;
+      font-weight: 650;
+      line-height: 1.2;
+      margin:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    button{
+      appearance:none;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: var(--ink);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    button:hover{border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.09)}
+    .accent{
+      border-color: rgba(140,115,255,.55);
+      background: rgba(140,115,255,.18);
+      box-shadow: 0 0 0 6px rgba(140,115,255,.10);
+    }
+    .row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-top: 12px;
+      flex-wrap:wrap;
+    }
+    .meter{
+      height: 10px;
+      flex: 1;
+      min-width: 200px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      overflow:hidden;
+      position:relative;
+    }
+    .meter > i{
+      display:block;
+      height:100%;
+      width: 40%;
+      background: linear-gradient(90deg, rgba(140,115,255,.0), rgba(140,115,255,.65), rgba(45,226,230,.55));
+      filter: blur(.0px);
+      animation: pulse 1.3s ease-in-out infinite;
+      transform-origin:left;
+    }
+    @keyframes pulse{
+      0%{transform: translateX(-40%) scaleX(.6); opacity:.55}
+      50%{transform: translateX(10%) scaleX(1.1); opacity:.95}
+      100%{transform: translateX(60%) scaleX(.7); opacity:.55}
+    }
+    .muted{color:var(--muted); font-size: 13px; line-height:1.45}
+    a{color: var(--accent2); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .small{font-size:12px;color:var(--muted)}
+    .list{
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .item{
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+    }
+    .item b{display:block; margin-bottom: 4px}
+    .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px}
+  </style>
+</head>
+<body class="stars">
+  <header>
+    <div class="brand">
+      <div class="logo">
+        <div class="mark" aria-hidden="true"></div>
+        <div>
+          <h1>Cosmic Station</h1>
+          <div class="tag">Live stream • late-night work fuel</div>
+        </div>
+      </div>
+      <div class="pill">24/7 • press play</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="playerTop">
+        <div class="now">
+          <div class="label">Now Playing</div>
+          <p class="title" id="statusLine">Ready when you are.</p>
+          <div class="small" id="streamHint">Stream: <span class="kbd" id="streamUrlLabel">STREAM_URL_HERE</span></div>
+        </div>
+        <div class="controls">
+          <button class="accent" id="playBtn">▶ Play</button>
+          <button id="stopBtn">■ Stop</button>
+          <button id="copyBtn">Copy stream URL</button>
+        </div>
+      </div>
+
+      <audio id="player" preload="none" crossorigin="anonymous">
+        <source src="STREAM_URL_HERE" />
+      </audio>
+
+      <div class="row">
+        <div class="meter" title="visual pulse (not real audio analysis)">
+          <i></i>
+        </div>
+        <div class="muted">Tip: if the stream doesn’t start, the URL might require <span class="kbd">.m3u</span>/<span class="kbd">.pls</span> or a different mount like <span class="kbd">/stream</span>.</div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12); margin:16px 0">
+
+      <div class="muted">
+        Want the “Now Playing” song title to update automatically?
+        Add a tiny JSON endpoint (Azuracast has one), and I’ll wire it in.
+      </div>
+    </section>
+
+    <aside class="card">
+      <div class="list">
+        <div class="item">
+          <b>Share this station</b>
+          <div class="muted">Drop this page on GitHub Pages or your own domain. It’s lightweight and works on phones.</div>
+        </div>
+        <div class="item">
+          <b>GitHub Pages quick path</b>
+          <div class="muted">
+            Repo → Settings → Pages → Deploy from branch → <span class="kbd">main</span> / <span class="kbd">/root</span>
+          </div>
+        </div>
+        <div class="item">
+          <b>What to replace</b>
+          <div class="muted">Search for <span class="kbd">STREAM_URL_HERE</span> and paste your stream URL in both spots.</div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const STREAM_URL = "STREAM_URL_HERE";
+
+    const player = document.getElementById("player");
+    const playBtn = document.getElementById("playBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const statusLine = document.getElementById("statusLine");
+    const streamUrlLabel = document.getElementById("streamUrlLabel");
+
+    streamUrlLabel.textContent = STREAM_URL;
+
+    function setStatus(msg){ statusLine.textContent = msg; }
+
+    playBtn.addEventListener("click", async () => {
+      try{
+        if (player.src !== STREAM_URL) player.src = STREAM_URL;
+        await player.play();
+        setStatus("Broadcasting. You’re tuned in.");
+        playBtn.textContent = "⏸ Pause";
+        playBtn.classList.add("accent");
+      }catch(e){
+        setStatus("Nope — browser blocked autoplay or the stream URL isn’t right.");
+        console.log(e);
+      }
+    });
+
+    playBtn.addEventListener("dblclick", () => {
+      if (!player.paused){
+        player.pause();
+        setStatus("Paused.");
+        playBtn.textContent = "▶ Play";
+      }
+    });
+
+    stopBtn.addEventListener("click", () => {
+      player.pause();
+      player.currentTime = 0;
+      setStatus("Stopped.");
+      playBtn.textContent = "▶ Play";
+    });
+
+    player.addEventListener("playing", () => {
+      playBtn.textContent = "⏸ Pause";
+      setStatus("Broadcasting. You’re tuned in.");
+    });
+
+    player.addEventListener("pause", () => {
+      if (player.currentTime !== 0){
+        setStatus("Paused.");
+      }
+    });
+
+    player.addEventListener("error", () => {
+      setStatus("Stream error. Try a different mount/playlist URL (.m3u/.pls) or check CORS.");
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try{
+        await navigator.clipboard.writeText(STREAM_URL);
+        setStatus("Stream URL copied.");
+      }catch{
+        setStatus("Couldn’t copy (browser permissions). Manually copy the URL in the corner.");
+      }
+    });
+  </script>
+</body>
+</html>
