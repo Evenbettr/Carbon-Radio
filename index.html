@@ -225,9 +225,9 @@
       <div class="logo">
         <div class="mark" aria-hidden="true"></div>
         <div>
-          <h1>Radio Station</h1>
-          <div class="tag">Live stream • late-night work fuel</div>
-        </div>
+          <h1>Carbon Radio</h1>
+            <div class="tag">Live transmission • late-night work fuel</div>
+            </div>
       </div>
       <div class="pill">24/7 • press play</div>
     </div>
@@ -238,6 +238,7 @@
       <div class="playerTop">
         <div class="now">
           <div class="label">Now Playing</div>
+          
           <p class="title" id="statusLine">Ready when you are.</p>
           <div class="small" id="streamHint">Stream: <span class="kbd" id="streamUrlLabel">STREAM_URL_HERE</span></div>
         </div>
@@ -262,8 +263,7 @@
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12); margin:16px 0">
 
       <div class="muted">
-        Want the “Now Playing” song title to update automatically?
-        Add a tiny JSON endpoint (Azuracast has one), and I’ll wire it in.
+       
       </div>
     </section>
 
@@ -323,6 +323,7 @@
   }
 });
 
+
    
 
     playBtn.addEventListener("dblclick", () => {
@@ -364,6 +365,44 @@
       }
     });
   </script>
+  <script>
+const AZURACAST_NOWPLAYING =
+  "https://a7.asurahosting.com/api/nowplaying/carbon_radio";
+
+const titleEl = document.getElementById("statusLine");
+const onAirBadge = document.getElementById("pillText");
+
+async function updateNowPlaying() {
+  try {
+    const res = await fetch(AZURACAST_NOWPLAYING, { cache: "no-store" });
+    const data = await res.json();
+
+    if (data.is_online) {
+      onAirBadge.textContent = "ON AIR";
+      onAirBadge.style.boxShadow =
+        "0 0 18px rgba(45,226,230,.6), 0 0 48px rgba(45,226,230,.35)";
+
+      const song = data.now_playing.song;
+      titleEl.textContent =
+        song.artist && song.title
+          ? `${song.artist} — ${song.title}`
+          : song.text || "Live transmission";
+    } else {
+      onAirBadge.textContent = "OFF AIR";
+      titleEl.textContent = "Station offline.";
+      onAirBadge.style.boxShadow = "none";
+    }
+  } catch (e) {
+    titleEl.textContent = "Signal check failed.";
+    console.log(e);
+  }
+}
+
+// initial load + poll every 5s
+updateNowPlaying();
+setInterval(updateNowPlaying, 5000);
+</script>
+
 </body>
 </html>
 
