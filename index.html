@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Carbon Radio</title>
-  <meta name="description" content="Live carbon radio — press play and drift." />
+  <title>Cosmic Station</title>
+  <meta name="description" content="Live cosmic radio — press play and drift." />
   <style>
     :root{
       --bg0:#05060d;
@@ -225,7 +225,7 @@
       <div class="logo">
         <div class="mark" aria-hidden="true"></div>
         <div>
-          <h1>Radio Station</h1>
+          <h1>Cosmic Station</h1>
           <div class="tag">Live stream • late-night work fuel</div>
         </div>
       </div>
@@ -281,49 +281,38 @@
         </div>
         <div class="item">
           <b>What to replace</b>
-          <div class="muted">Search for <span class="kbd">https://a7.asurahosting.com/public/carbon_radio</span> and paste your stream URL in both spots.</div>
+          <div class="muted">Search for <span class="kbd">STREAM_URL_HERE</span> and paste your stream URL in both spots.</div>
         </div>
       </div>
     </aside>
   </main>
 
   <script>
-   
+    const STREAM_URL = "STREAM_URL_HERE";
+
     const player = document.getElementById("player");
     const playBtn = document.getElementById("playBtn");
     const stopBtn = document.getElementById("stopBtn");
     const copyBtn = document.getElementById("copyBtn");
     const statusLine = document.getElementById("statusLine");
     const streamUrlLabel = document.getElementById("streamUrlLabel");
-    const AZURACAST_BASE = "https://a7.asurahosting.com";
-    const STATION_SHORTCODE = "carbon_radio";
-    const STREAM_URL = "https://a7.asurahosting.com/listen/carbon_radio/radio.mp3";
-
 
     streamUrlLabel.textContent = STREAM_URL;
 
     function setStatus(msg){ statusLine.textContent = msg; }
 
     playBtn.addEventListener("click", async () => {
-  try {
-    if (player.src !== STREAM_URL) player.src = STREAM_URL;
-
-    if (player.paused) {
-      await player.play();
-      setStatus("Broadcasting. You’re tuned in.");
-      playBtn.textContent = "⏸ Pause";
-    } else {
-      player.pause();
-      setStatus("Paused.");
-      playBtn.textContent = "▶ Play";
-    }
-  } catch (e) {
-    setStatus("Couldn’t start the stream. Check the stream URL / mount, or try AAC.");
-    console.log(e);
-  }
-});
-
-   
+      try{
+        if (player.src !== STREAM_URL) player.src = STREAM_URL;
+        await player.play();
+        setStatus("Broadcasting. You’re tuned in.");
+        playBtn.textContent = "⏸ Pause";
+        playBtn.classList.add("accent");
+      }catch(e){
+        setStatus("Nope — browser blocked autoplay or the stream URL isn’t right.");
+        console.log(e);
+      }
+    });
 
     playBtn.addEventListener("dblclick", () => {
       if (!player.paused){
@@ -366,4 +355,3 @@
   </script>
 </body>
 </html>
-
