@@ -374,14 +374,36 @@
     });
 
     // ====== NOW PLAYING ======
-    async function updateNowPlaying(){
-      // If you haven't set up the proxy yet, don't hammer a fake URL.
-      if (!NOWPLAYING_URL || NOWPLAYING_URL.includes("REPLACE_WITH_YOUR_PROXY_URL")){
-        setPill("ON AIR", false);
-        setStatus("Metadata not wired yet.");
-        showBackup(true);
-        return;
-      }
+    async function updateNowPlaying() {
+  try {
+    const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, {
+      cache: "no-store"
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json();
+
+    const online = !!data.is_online;
+    setPill(online ? "ON AIR" : "OFF AIR", online);
+
+    const song = data?.now_playing?.song || {};
+    trackTitle.textContent = song.title || song.text || "—";
+    trackArtist.textContent = song.artist || "—";
+
+    showBackup(false);
+    setStatus(online ? "Live transmission." : "Station offline.");
+
+  } catch (err) {
+    // This ONLY triggers if the proxy or AzuraCast is actually unreachable
+    setPill("OFF AIR", false);
+    trackTitle.textContent = "—";
+    trackArtist.textContent = "—";
+    setStatus("Metadata unavailable.");
+    showBackup(true);
+    console.log("Now Playing error:", err);
+  }
+}
 
       try{
         const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
