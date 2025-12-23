@@ -346,12 +346,19 @@
 
     const data = await res.json();
     debug(`JSON OK. is_online=${data.is_online}`);
-    const art =
-  data?.now_playing?.song?.art ||
-  data?.now_playing?.song?.artwork ||
-  data?.now_playing?.song?.album_art ||
-  data?.now_playing?.song?.art_url ||
-  data?.now_playing?.song?.thumbnail;
+    const art = data?.now_playing?.song?.art || "";
+
+if (albumArt) {
+  if (art) {
+    albumArt.src = art;
+    albumArt.style.opacity = "1";
+  } else {
+    // keep a placeholder (or hide it)
+    albumArt.src = "https://a7.asurahosting.com/public/carbon_radio/embed.png";
+    albumArt.style.opacity = "0.85";
+  }
+}
+
 
 if (albumArt) {
   if (art) {
