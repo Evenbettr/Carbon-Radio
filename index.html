@@ -237,12 +237,16 @@
     <section class="card">
       <div class="playerTop">
         <div class="now">
-          <div class="label">Now Playing</div>
-          
-          <p class="title" id="statusLine">Checking signal…</p>
+  <div class="label">Now Playing</div>
 
-          <div class="small" id="streamHint">Stream: <span class="kbd" id="streamUrlLabel">STREAM_URL_HERE</span></div>
-        </div>
+  <p class="title" id="trackTitle">—</p>
+  <p class="artist" id="trackArtist">—</p>
+
+  <div class="small">
+    <span id="statusLine">Checking signal…</span>
+  </div>
+</div>
+
         <div class="controls">
           <button class="accent" id="playBtn">▶ Play</button>
           <button id="stopBtn">■ Stop</button>
@@ -254,12 +258,7 @@
         <source src="STREAM_URL_HERE" />
       </audio>
 
-      <div class="row">
-        <div class="meter" title="visual pulse (not real audio analysis)">
-          <i></i>
-        </div>
-        <div class="muted">Tip: if the stream doesn’t start, the URL might require <span class="kbd">.m3u</span>/<span class="kbd">.pls</span> or a different mount like <span class="kbd">/stream</span>.</div>
-      </div>
+     
 
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12); margin:16px 0">
 
@@ -267,25 +266,42 @@
        
       </div>
     </section>
-
-    <aside class="card">
-      <div class="list">
-        <div class="item">
-          <b>Share this station</b>
-          <div class="muted">Drop this page on GitHub Pages or your own domain. It’s lightweight and works on phones.</div>
-        </div>
-        <div class="item">
-          <b>GitHub Pages quick path</b>
-          <div class="muted">
-            Repo → Settings → Pages → Deploy from branch → <span class="kbd">main</span> / <span class="kbd">/root</span>
-          </div>
-        </div>
-        <div class="item">
-          <b>What to replace</b>
-          <div class="muted">Search for <span class="kbd">https://a7.asurahosting.com/public/carbon_radio</span> and paste your stream URL in both spots.</div>
-        </div>
+<aside class="card">
+  <div class="list">
+    <div class="item">
+      <b>About Carbon Radio</b>
+      <div class="muted">
+        A live transmission for focus, late nights, and getting things finished.
+        Minimal talk. Maximum continuity.
       </div>
-    </aside>
+    </div>
+
+    <div class="item">
+      <b>Status</b>
+      <div class="muted" id="sideStatus">Checking signal…</div>
+      <div class="small">Updates every 5 seconds.</div>
+    </div>
+
+    <div class="item">
+      <b>Links</b>
+      <div class="muted">
+        <a href="https://a7.asurahosting.com/public/carbon_radio" target="_blank" rel="noopener">Public Player</a>
+        &nbsp;•&nbsp;
+        <a href="https://a7.asurahosting.com/public/carbon_radio/playlist.m3u" target="_blank" rel="noopener">M3U</a>
+        &nbsp;•&nbsp;
+        <a href="https://a7.asurahosting.com/public/carbon_radio/playlist.pls" target="_blank" rel="noopener">PLS</a>
+      </div>
+    </div>
+
+    <div class="item">
+      <b>Made under</b>
+      <div class="muted">
+        <a href="https://wanderingsignalstudios.com" target="_blank" rel="noopener">Wandering Signal Studios</a>
+      </div>
+    </div>
+  </div>
+</aside>
+
   </main>
 
   <script>
