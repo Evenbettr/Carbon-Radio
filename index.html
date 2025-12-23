@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Carbon Radio</title>
-  <meta name="description" content="Live carbon radio — press play and drift." />
+  <meta name="description" content="Carbon Radio — live transmission for focus and late nights." />
+
   <style>
     :root{
       --bg0:#05060d;
@@ -54,6 +55,7 @@
       from{transform: translate3d(0,0,0)}
       to{transform: translate3d(80px,40px,0)}
     }
+
     header{
       max-width: 980px;
       margin: 42px auto 0;
@@ -99,6 +101,7 @@
       padding: 8px 10px;
       border-radius: 999px;
       white-space:nowrap;
+      transition: box-shadow .25s ease, border-color .25s ease;
     }
 
     main{
@@ -120,6 +123,7 @@
       padding: 18px;
       backdrop-filter: blur(10px);
     }
+
     .playerTop{
       display:flex;
       align-items:flex-start;
@@ -148,6 +152,15 @@
       text-overflow:ellipsis;
       white-space:nowrap;
     }
+    .artist{
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
     .controls{
       display:flex;
       gap:10px;
@@ -171,44 +184,13 @@
       background: rgba(140,115,255,.18);
       box-shadow: 0 0 0 6px rgba(140,115,255,.10);
     }
-    .row{
-      display:flex;
-      gap:12px;
-      align-items:center;
-      margin-top: 12px;
-      flex-wrap:wrap;
-    }
-    .meter{
-      height: 10px;
-      flex: 1;
-      min-width: 200px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.22);
-      overflow:hidden;
-      position:relative;
-    }
-    .meter > i{
-      display:block;
-      height:100%;
-      width: 40%;
-      background: linear-gradient(90deg, rgba(140,115,255,.0), rgba(140,115,255,.65), rgba(45,226,230,.55));
-      filter: blur(.0px);
-      animation: pulse 1.3s ease-in-out infinite;
-      transform-origin:left;
-    }
-    @keyframes pulse{
-      0%{transform: translateX(-40%) scaleX(.6); opacity:.55}
-      50%{transform: translateX(10%) scaleX(1.1); opacity:.95}
-      100%{transform: translateX(60%) scaleX(.7); opacity:.55}
-    }
+
     .muted{color:var(--muted); font-size: 13px; line-height:1.45}
+    .small{font-size:12px;color:var(--muted)}
     a{color: var(--accent2); text-decoration:none}
     a:hover{text-decoration:underline}
-    .small{font-size:12px;color:var(--muted)}
-    .list{
-      display:flex; flex-direction:column; gap:10px;
-    }
+
+    .list{display:flex; flex-direction:column; gap:10px;}
     .item{
       padding: 12px;
       border-radius: 14px;
@@ -216,9 +198,19 @@
       background: rgba(0,0,0,.18);
     }
     .item b{display:block; margin-bottom: 4px}
-    .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px}
+
+    .backup{
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      display:none;
+    }
+    .backup.show{display:block}
   </style>
 </head>
+
 <body class="stars">
   <header>
     <div class="brand">
@@ -226,26 +218,22 @@
         <div class="mark" aria-hidden="true"></div>
         <div>
           <h1>Carbon Radio</h1>
-            <div class="tag">Live transmission • late-night work fuel</div>
-            </div>
+          <div class="tag">Live transmission • late-night work fuel</div>
+        </div>
       </div>
       <div class="pill" id="pillText">checking signal…</div>
-        </div>
+    </div>
   </header>
 
   <main>
     <section class="card">
       <div class="playerTop">
         <div class="now">
-  <div class="label">Now Playing</div>
-
-  <p class="title" id="trackTitle">—</p>
-  <p class="artist" id="trackArtist">—</p>
-
-  <div class="small">
-    <span id="statusLine">Checking signal…</span>
-  </div>
-</div>
+          <div class="label">Now Playing</div>
+          <p class="title" id="trackTitle">—</p>
+          <p class="artist" id="trackArtist">—</p>
+          <div class="small" id="statusLine">Checking signal…</div>
+        </div>
 
         <div class="controls">
           <button class="accent" id="playBtn">▶ Play</button>
@@ -254,123 +242,126 @@
         </div>
       </div>
 
-      <audio id="player" preload="none" crossorigin="anonymous">
-        <source src="STREAM_URL_HERE" />
-      </audio>
+      <audio id="player" preload="none" crossorigin="anonymous"></audio>
 
-     
-
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12); margin:16px 0">
-
-      <div class="muted">
-       
+      <div class="backup" id="backupBox">
+        <b>Metadata offline.</b>
+        <div class="muted" style="margin-top:6px">
+          The stream can still play, but “Now Playing” needs a CORS-safe endpoint.
+        </div>
       </div>
     </section>
-<aside class="card">
-  <div class="list">
-    <div class="item">
-      <b>About Carbon Radio</b>
-      <div class="muted">
-        A live transmission for focus, late nights, and getting things finished.
-        Minimal talk. Maximum continuity.
+
+    <aside class="card">
+      <div class="list">
+        <div class="item">
+          <b>About</b>
+          <div class="muted">
+            A live transmission for focus, late nights, and getting things finished.
+            Minimal talk. Maximum continuity.
+          </div>
+        </div>
+
+        <div class="item">
+          <b>Status</b>
+          <div class="muted" id="sideStatus">Checking signal…</div>
+          <div class="small">Updates every 5 seconds.</div>
+        </div>
+
+        <div class="item">
+          <b>Links</b>
+          <div class="muted">
+            <a href="https://a7.asurahosting.com/public/carbon_radio" target="_blank" rel="noopener">Public Player</a>
+            &nbsp;•&nbsp;
+            <a href="https://a7.asurahosting.com/public/carbon_radio/playlist.m3u" target="_blank" rel="noopener">M3U</a>
+            &nbsp;•&nbsp;
+            <a href="https://a7.asurahosting.com/public/carbon_radio/playlist.pls" target="_blank" rel="noopener">PLS</a>
+          </div>
+        </div>
+
+        <div class="item">
+          <b>Made under</b>
+          <div class="muted">
+            <a href="https://wanderingsignalstudios.com" target="_blank" rel="noopener">Wandering Signal Studios</a>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div class="item">
-      <b>Status</b>
-      <div class="muted" id="sideStatus">Checking signal…</div>
-      <div class="small">Updates every 5 seconds.</div>
-    </div>
-
-    <div class="item">
-      <b>Links</b>
-      <div class="muted">
-        <a href="https://a7.asurahosting.com/public/carbon_radio" target="_blank" rel="noopener">Public Player</a>
-        &nbsp;•&nbsp;
-        <a href="https://a7.asurahosting.com/public/carbon_radio/playlist.m3u" target="_blank" rel="noopener">M3U</a>
-        &nbsp;•&nbsp;
-        <a href="https://a7.asurahosting.com/public/carbon_radio/playlist.pls" target="_blank" rel="noopener">PLS</a>
-      </div>
-    </div>
-
-    <div class="item">
-      <b>Made under</b>
-      <div class="muted">
-        <a href="https://wanderingsignalstudios.com" target="_blank" rel="noopener">Wandering Signal Studios</a>
-      </div>
-    </div>
-  </div>
-</aside>
-
+    </aside>
   </main>
 
   <script>
-   
+    // ====== CONFIG ======
+    const STREAM_URL = "https://a7.asurahosting.com/listen/carbon_radio/radio.mp3";
+
+    // IMPORTANT:
+    // GitHub Pages → AzuraCast API fetch is typically blocked by CORS.
+    // Replace this with your CORS-safe proxy URL (Cloudflare Worker etc).
+    // Example: https://api.carbonradio.live/nowplaying
+    const NOWPLAYING_URL = "REPLACE_WITH_YOUR_PROXY_URL";
+
+    const POLL_MS = 5000;
+
+    // ====== DOM ======
     const player = document.getElementById("player");
     const playBtn = document.getElementById("playBtn");
     const stopBtn = document.getElementById("stopBtn");
     const copyBtn = document.getElementById("copyBtn");
+
+    const pillText = document.getElementById("pillText");
+    const trackTitle = document.getElementById("trackTitle");
+    const trackArtist = document.getElementById("trackArtist");
     const statusLine = document.getElementById("statusLine");
-    const streamUrlLabel = document.getElementById("streamUrlLabel");
-    const AZURACAST_BASE = "https://a7.asurahosting.com";
-    const STATION_SHORTCODE = "carbon_radio";
-    const STREAM_URL = "https://a7.asurahosting.com/listen/carbon_radio/radio.mp3";
+    const sideStatus = document.getElementById("sideStatus");
+    const backupBox = document.getElementById("backupBox");
 
-
-    streamUrlLabel.textContent = STREAM_URL;
-
-    function setStatus(msg){ statusLine.textContent = msg; }
-
-    playBtn.addEventListener("click", async () => {
-  try {
-    if (player.src !== STREAM_URL) player.src = STREAM_URL;
-
-    if (player.paused) {
-      await player.play();
-      setStatus("Broadcasting. You’re tuned in.");
-      playBtn.textContent = "⏸ Pause";
-    } else {
-      player.pause();
-      setStatus("Paused.");
-      playBtn.textContent = "▶ Play";
+    function setStatus(msg){
+      statusLine.textContent = msg;
+      if (sideStatus) sideStatus.textContent = msg;
     }
-  } catch (e) {
-    setStatus("Couldn’t start the stream. Check the stream URL / mount, or try AAC.");
-    console.log(e);
-  }
-});
 
+    function setPill(text, glow){
+      pillText.textContent = text;
+      pillText.style.boxShadow = glow
+        ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
+        : "none";
+      pillText.style.borderColor = glow
+        ? "rgba(45,226,230,.45)"
+        : "rgba(255,255,255,.14)";
+    }
 
-   
+    function showBackup(show){
+      backupBox.classList.toggle("show", !!show);
+    }
 
-    playBtn.addEventListener("dblclick", () => {
-      if (!player.paused){
-        player.pause();
-        setStatus("Paused.");
-        playBtn.textContent = "▶ Play";
+    // ====== AUDIO ======
+    playBtn.addEventListener("click", async () => {
+      try{
+        if (player.src !== STREAM_URL) player.src = STREAM_URL;
+
+        if (player.paused){
+          await player.play();
+          playBtn.textContent = "⏸ Pause";
+          setStatus("Broadcasting. You’re tuned in.");
+        } else {
+          player.pause();
+          playBtn.textContent = "▶ Play";
+          setStatus("Paused.");
+        }
+      }catch(e){
+        setStatus("Couldn’t start the stream.");
+        console.log(e);
       }
     });
 
     stopBtn.addEventListener("click", () => {
       player.pause();
-      player.currentTime = 0;
-      setStatus("Stopped.");
+      try { player.currentTime = 0; } catch {}
       playBtn.textContent = "▶ Play";
-    });
-
-    player.addEventListener("playing", () => {
-      playBtn.textContent = "⏸ Pause";
-      setStatus("Broadcasting. You’re tuned in.");
-    });
-
-    player.addEventListener("pause", () => {
-      if (player.currentTime !== 0){
-        setStatus("Paused.");
-      }
+      setStatus("Stopped.");
     });
 
     player.addEventListener("error", () => {
-      setStatus("Stream error. Try a different mount/playlist URL (.m3u/.pls) or check CORS.");
+      setStatus("Stream error.");
     });
 
     copyBtn.addEventListener("click", async () => {
@@ -378,101 +369,47 @@
         await navigator.clipboard.writeText(STREAM_URL);
         setStatus("Stream URL copied.");
       }catch{
-        setStatus("Couldn’t copy (browser permissions). Manually copy the URL in the corner.");
+        setStatus("Couldn’t copy stream URL.");
       }
     });
-  </script>
-  <script>
-const AZURACAST_NOWPLAYING =
-  "https://a7.asurahosting.com/api/nowplaying/carbon_radio";
 
-const titleEl = document.getElementById("statusLine");
-const onAirBadge = document.getElementById("pillText");
+    // ====== NOW PLAYING ======
+    async function updateNowPlaying(){
+      // If you haven't set up the proxy yet, don't hammer a fake URL.
+      if (!NOWPLAYING_URL || NOWPLAYING_URL.includes("REPLACE_WITH_YOUR_PROXY_URL")){
+        setPill("ON AIR", false);
+        setStatus("Metadata not wired yet.");
+        showBackup(true);
+        return;
+      }
 
-async function updateNowPlaying() {
-  try {
-    const res = await fetch(AZURACAST_NOWPLAYING, { cache: "no-store" });
-    const data = await res.json();
+      try{
+        const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
 
-    if (data.is_online) {
-      onAirBadge.textContent = "ON AIR";
-      onAirBadge.style.boxShadow =
-        "0 0 18px rgba(45,226,230,.6), 0 0 48px rgba(45,226,230,.35)";
-
-      const song = data.now_playing.song;
-      titleEl.textContent =
-        song.artist && song.title
-          ? `${song.artist} — ${song.title}`
-          : song.text || "Live transmission";
-    } else {
-      onAirBadge.textContent = "OFF AIR";
-      titleEl.textContent = "Station offline.";
-      onAirBadge.style.boxShadow = "none";
-    }
-  } catch (e) {
-    titleEl.textContent = "Signal check failed.";
-    console.log(e);
-  }
-}
-
-// initial load + poll every 5s
-updateNowPlaying();
-setInterval(updateNowPlaying, 5000);
-</script>
-
-<script>
-  const NOWPLAYING_URL = "https://a7.asurahosting.com/api/nowplaying/carbon_radio";
-  const pill = document.getElementById("pillText");
-  const statusLine = document.getElementById("statusLine");
-
-  function setPill(text, glow) {
-    if (!pill) return;
-    pill.textContent = text;
-
-    // subtle glow when live
-    pill.style.boxShadow = glow
-      ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
-      : "none";
-    pill.style.borderColor = glow ? "rgba(45,226,230,.45)" : "rgba(255,255,255,.14)";
-  }
-
-  function setStatus(text) {
-    if (!statusLine) return;
-    statusLine.textContent = text;
-  }
-
-  async function tick() {
-    try {
-      const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-
-      if (data.is_online) {
-        setPill("ON AIR", true);
+        const online = !!data.is_online;
+        setPill(online ? "ON AIR" : "OFF AIR", online);
 
         const song = data?.now_playing?.song || {};
-        const line =
-          (song.artist && song.title) ? `${song.artist} — ${song.title}`
-          : (song.text ? song.text : "Live transmission");
+        trackTitle.textContent = song.title || song.text || "—";
+        trackArtist.textContent = song.artist || "—";
 
-        setStatus(line);
-      } else {
-        setPill("OFF AIR", false);
-        setStatus("Station offline.");
+        showBackup(false);
+        setStatus(online ? "Live transmission." : "Station offline.");
+      }catch(err){
+        // This is what you were seeing as "Signal check failed"
+        trackTitle.textContent = "—";
+        trackArtist.textContent = "—";
+        setPill("ON AIR", false);
+        setStatus("Metadata offline.");
+        showBackup(true);
+        console.log("NowPlaying error:", err);
       }
-    } catch (err) {
-      // If AzuraCast can’t be reached, treat as offline
-      setPill("OFF AIR", false);
-      setStatus("Signal check failed (AzuraCast unreachable).");
-      console.log("Now Playing error:", err);
     }
-  }
 
-  tick();
-  setInterval(tick, 5000);
-</script>
-
-
+    updateNowPlaying();
+    setInterval(updateNowPlaying, POLL_MS);
+  </script>
 </body>
 </html>
-
