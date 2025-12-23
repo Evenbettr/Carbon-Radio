@@ -289,149 +289,111 @@
     </aside>
   </main>
 
-  <script>
-    // ====== CONFIG ======
-    const STREAM_URL = "https://a7.asurahosting.com/listen/carbon_radio/radio.mp3";
+ <script>
+  // ====== CONFIG ======
+  const STREAM_URL = "https://a7.asurahosting.com/listen/carbon_radio/radio.mp3";
+  const NOWPLAYING_URL = "https://api.carbonradio.live/nowplaying"; // your Cloudflare Worker route
+  const POLL_MS = 5000;
 
-    // IMPORTANT:
-    // GitHub Pages → AzuraCast API fetch is typically blocked by CORS.
-    // Replace this with your CORS-safe proxy URL (Cloudflare Worker etc).
-    // Example: https://api.carbonradio.live/nowplaying
-    const NOWPLAYING_URL = "REPLACE_WITH_YOUR_PROXY_URL";
+  // ====== DOM ======
+  const player = document.getElementById("player");
+  const playBtn = document.getElementById("playBtn");
+  const stopBtn = document.getElementById("stopBtn");
+  const copyBtn = document.getElementById("copyBtn");
 
-    const POLL_MS = 5000;
+  const pillText = document.getElementById("pillText");
+  const trackTitle = document.getElementById("trackTitle");
+  const trackArtist = document.getElementById("trackArtist");
+  const statusLine = document.getElementById("statusLine");
+  const sideStatus = document.getElementById("sideStatus");
+  const backupBox = document.getElementById("backupBox");
 
-    // ====== DOM ======
-    const player = document.getElementById("player");
-    const playBtn = document.getElementById("playBtn");
-    const stopBtn = document.getElementById("stopBtn");
-    const copyBtn = document.getElementById("copyBtn");
-
-    const pillText = document.getElementById("pillText");
-    const trackTitle = document.getElementById("trackTitle");
-    const trackArtist = document.getElementById("trackArtist");
-    const statusLine = document.getElementById("statusLine");
-    const sideStatus = document.getElementById("sideStatus");
-    const backupBox = document.getElementById("backupBox");
-
-    function setStatus(msg){
-      statusLine.textContent = msg;
-      if (sideStatus) sideStatus.textContent = msg;
-    }
-
-    function setPill(text, glow){
-      pillText.textContent = text;
-      pillText.style.boxShadow = glow
-        ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
-        : "none";
-      pillText.style.borderColor = glow
-        ? "rgba(45,226,230,.45)"
-        : "rgba(255,255,255,.14)";
-    }
-
-    function showBackup(show){
-      backupBox.classList.toggle("show", !!show);
-    }
-
-    // ====== AUDIO ======
-    playBtn.addEventListener("click", async () => {
-      try{
-        if (player.src !== STREAM_URL) player.src = STREAM_URL;
-
-        if (player.paused){
-          await player.play();
-          playBtn.textContent = "⏸ Pause";
-          setStatus("Broadcasting. You’re tuned in.");
-        } else {
-          player.pause();
-          playBtn.textContent = "▶ Play";
-          setStatus("Paused.");
-        }
-      }catch(e){
-        setStatus("Couldn’t start the stream.");
-        console.log(e);
-      }
-    });
-
-    stopBtn.addEventListener("click", () => {
-      player.pause();
-      try { player.currentTime = 0; } catch {}
-      playBtn.textContent = "▶ Play";
-      setStatus("Stopped.");
-    });
-
-    player.addEventListener("error", () => {
-      setStatus("Stream error.");
-    });
-
-    copyBtn.addEventListener("click", async () => {
-      try{
-        await navigator.clipboard.writeText(STREAM_URL);
-        setStatus("Stream URL copied.");
-      }catch{
-        setStatus("Couldn’t copy stream URL.");
-      }
-    });
-
-    // ====== NOW PLAYING ======
-    async function updateNowPlaying() {
-  try {
-    const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, {
-      cache: "no-store"
-    });
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
-
-    const online = !!data.is_online;
-    setPill(online ? "ON AIR" : "OFF AIR", online);
-
-    const song = data?.now_playing?.song || {};
-    trackTitle.textContent = song.title || song.text || "—";
-    trackArtist.textContent = song.artist || "—";
-
-    showBackup(false);
-    setStatus(online ? "Live transmission." : "Station offline.");
-
-  } catch (err) {
-    // This ONLY triggers if the proxy or AzuraCast is actually unreachable
-    setPill("OFF AIR", false);
-    trackTitle.textContent = "—";
-    trackArtist.textContent = "—";
-    setStatus("Metadata unavailable.");
-    showBackup(true);
-    console.log("Now Playing error:", err);
+  function setStatus(msg){
+    statusLine.textContent = msg;
+    if (sideStatus) sideStatus.textContent = msg;
   }
-}
 
-      try{
-        const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+  function setPill(text, glow){
+    pillText.textContent = text;
+    pillText.style.boxShadow = glow
+      ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
+      : "none";
+    pillText.style.borderColor = glow
+      ? "rgba(45,226,230,.45)"
+      : "rgba(255,255,255,.14)";
+  }
 
-        const online = !!data.is_online;
-        setPill(online ? "ON AIR" : "OFF AIR", online);
+  function showBackup(show){
+    backupBox.classList.toggle("show", !!show);
+  }
 
-        const song = data?.now_playing?.song || {};
-        trackTitle.textContent = song.title || song.text || "—";
-        trackArtist.textContent = song.artist || "—";
+  // ====== AUDIO ======
+  playBtn.addEventListener("click", async () => {
+    try{
+      if (player.src !== STREAM_URL) player.src = STREAM_URL;
 
-        showBackup(false);
-        setStatus(online ? "Live transmission." : "Station offline.");
-      }catch(err){
-        // This is what you were seeing as "Signal check failed"
-        trackTitle.textContent = "—";
-        trackArtist.textContent = "—";
-        setPill("ON AIR", false);
-        setStatus("Metadata offline.");
-        showBackup(true);
-        console.log("NowPlaying error:", err);
+      if (player.paused){
+        await player.play();
+        playBtn.textContent = "⏸ Pause";
+        setStatus("Broadcasting. You’re tuned in.");
+      } else {
+        player.pause();
+        playBtn.textContent = "▶ Play";
+        setStatus("Paused.");
       }
+    }catch(e){
+      setStatus("Couldn’t start the stream.");
+      console.log(e);
     }
+  });
 
-    updateNowPlaying();
-    setInterval(updateNowPlaying, POLL_MS);
-  </script>
-</body>
-</html>
+  stopBtn.addEventListener("click", () => {
+    player.pause();
+    try { player.currentTime = 0; } catch {}
+    playBtn.textContent = "▶ Play";
+    setStatus("Stopped.");
+  });
+
+  player.addEventListener("error", () => {
+    setStatus("Stream error.");
+  });
+
+  copyBtn.addEventListener("click", async () => {
+    try{
+      await navigator.clipboard.writeText(STREAM_URL);
+      setStatus("Stream URL copied.");
+    }catch{
+      setStatus("Couldn’t copy stream URL.");
+    }
+  });
+
+  // ====== NOW PLAYING ======
+  async function updateNowPlaying() {
+    try {
+      const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+      const online = !!data.is_online;
+
+      setPill(online ? "ON AIR" : "OFF AIR", online);
+
+      const song = data?.now_playing?.song || {};
+      trackTitle.textContent = song.title || song.text || "—";
+      trackArtist.textContent = song.artist || "—";
+
+      showBackup(false);
+      setStatus(online ? "Live transmission." : "Station offline.");
+    } catch (err) {
+      setPill("OFF AIR", false);
+      trackTitle.textContent = "—";
+      trackArtist.textContent = "—";
+      setStatus("Metadata unavailable.");
+      showBackup(true);
+      console.log("Now Playing error:", err);
+    }
+  }
+
+  updateNowPlaying();
+  setInterval(updateNowPlaying, POLL_MS);
+</script>
