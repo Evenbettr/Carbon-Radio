@@ -233,6 +233,9 @@
           <p class="title" id="trackTitle">—</p>
           <p class="artist" id="trackArtist">—</p>
           <div class="small" id="statusLine">Checking signal…</div>
+              <div class="artWrap">
+              <img id="albumArt" class="albumArt" src="" alt="Album art" />
+              </div>
         </div>
 
         
@@ -299,12 +302,7 @@
   const trackArtist= document.getElementById("trackArtist");
   const statusLine = document.getElementById("statusLine");
 
-  const debugText  = document.getElementById("debugText");
-
-  function debug(msg){
-    if (debugText) debugText.textContent = msg;
-    console.log(msg);
-  }
+   
 
   async function updateNowPlaying(){
   // 1) DOM sanity
