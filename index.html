@@ -312,46 +312,59 @@
   }
 
   async function updateNowPlaying(){
-    // 1) DOM sanity
-    debug(
-      `DOM check: pillText=${!!pillText}, trackTitle=${!!trackTitle}, trackArtist=${!!trackArtist}, statusLine=${!!statusLine}`
-    );
+  // 1) DOM sanity
+  debug(
+    `DOM check: pillText=${!!pillText}, trackTitle=${!!trackTitle}, trackArtist=${!!trackArtist}, statusLine=${!!statusLine}`
+  );
 
+  try{
     // 2) Fetch sanity
-    try{
-      const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
-      debug(`Fetch: HTTP ${res.status}`);
+    const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
+    debug(`Fetch: HTTP ${res.status}`);
 
-      // Proves whether JS is allowed to read the response
-      const aco = res.headers.get("access-control-allow-origin");
-      debug(`CORS header: access-control-allow-origin = ${aco || "(missing)"}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    debug(`JSON OK. is_online=${data.is_online}`);
 
-      const data = await res.json();
-      debug(`JSON OK. is_online=${data.is_online}`);
+    // 3) ONLINE STATUS
+    const online = !!data.is_online;
 
-      const online = !!data.is_online;
-
-      if (pillText){
-        pillText.textContent = online ? "ON AIR" : "OFF AIR";
-        pillText.style.boxShadow = online
-          ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
-          : "none";
-        pillText.style.borderColor = online
-          ? "rgba(45,226,230,.45)"
-          : "rgba(255,255,255,.14)";
-      }
-
-      const song = data?.now_playing?.song || {};
-      if (trackTitle) trackTitle.textContent = song.title || song.text || "—";
-      if (trackArtist) trackArtist.textContent = song.artist || "—";
-      if (statusLine) statusLine.textContent = online ? "Live transmission." : "Station offline.";
-
-    } catch (err){
-      debug(`ERROR: ${err.message || err}`);
+    // 4) UPDATE PILL (this is what you’re not seeing)
+    if (pillText) {
+      pillText.textContent = online ? "ON AIR" : "OFF AIR";
+      pillText.style.boxShadow = online
+        ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
+        : "none";
     }
+
+    // 5) UPDATE TRACK TEXT
+    const song = data?.now_playing?.song || {};
+
+    if (trackTitle) {
+      trackTitle.textContent = song.title || song.text || "—";
+    }
+
+    if (trackArtist) {
+      trackArtist.textContent = song.artist || "—";
+    }
+
+    // 6) UPDATE STATUS LINE (proof JS is running)
+    if (statusLine) {
+      statusLine.textContent = online
+        ? "Live transmission."
+        : "Station offline.";
+    }
+
+  } catch (err){
+    debug(`ERROR: ${err.message || err}`);
+
+    if (pillText) pillText.textContent = "OFF AIR";
+    if (trackTitle) trackTitle.textContent = "—";
+    if (trackArtist) trackArtist.textContent = "—";
+    if (statusLine) statusLine.textContent = "Metadata unavailable.";
   }
+}
 
   updateNowPlaying();
   setInterval(updateNowPlaying, POLL_MS);
