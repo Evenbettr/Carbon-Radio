@@ -292,7 +292,7 @@
  <script>
   // ====== CONFIG ======
   const STREAM_URL = "https://a7.asurahosting.com/listen/carbon_radio/radio.mp3";
-  const NOWPLAYING_URL = "https://api.carbonradio.live/nowplaying"; // your Cloudflare Worker route
+  const NOWPLAYING_URL = "https://api.carbonradio.live/nowplaying";
   const POLL_MS = 5000;
 
   // ====== DOM ======
@@ -352,10 +352,6 @@
     try { player.currentTime = 0; } catch {}
     playBtn.textContent = "▶ Play";
     setStatus("Stopped.");
-  });
-
-  player.addEventListener("error", () => {
-    setStatus("Stream error.");
   });
 
   copyBtn.addEventListener("click", async () => {
