@@ -235,6 +235,12 @@
           <div class="small" id="statusLine">Checking signal…</div>
         </div>
 
+        <div class="backup show" id="debugBox">
+  <b>Debug</b>
+  <div class="muted" id="debugText">waiting…</div>
+</div>
+
+
        <div class="controls">
           <button class="accent" id="playBtn">▶ Play</button>
           <button id="stopBtn">■ Stop</button>
@@ -288,106 +294,62 @@
       </div>
     </aside>
   </main>
-     <script>
-  // ====== CONFIG ======
-  const STREAM_URL = "https://a7.asurahosting.com/listen/carbon_radio/radio.mp3";
-  const NOWPLAYING_URL = "https://api.carbonradio.live/nowplaying"; // your Worker (returns JSON)
+  
+  <script>
+  const NOWPLAYING_URL = "https://api.carbonradio.live/nowplaying"; // your proxy
   const POLL_MS = 5000;
-
-  // ====== DOM ======
-  const player = document.getElementById("player");
-  const playBtn = document.getElementById("playBtn");
-  const stopBtn = document.getElementById("stopBtn");
-  const copyBtn = document.getElementById("copyBtn");
 
   const pillText   = document.getElementById("pillText");
   const trackTitle = document.getElementById("trackTitle");
   const trackArtist= document.getElementById("trackArtist");
   const statusLine = document.getElementById("statusLine");
-  const sideStatus = document.getElementById("sideStatus");
-  const backupBox  = document.getElementById("backupBox");
 
-  function setStatus(msg){
-    if (statusLine) statusLine.textContent = msg;
-    if (sideStatus) sideStatus.textContent = msg;
+  const debugText  = document.getElementById("debugText");
+
+  function debug(msg){
+    if (debugText) debugText.textContent = msg;
+    console.log(msg);
   }
 
-  function setPill(text, glow){
-    if (!pillText) return;
-    pillText.textContent = text;
-    pillText.style.boxShadow = glow
-      ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
-      : "none";
-    pillText.style.borderColor = glow
-      ? "rgba(45,226,230,.45)"
-      : "rgba(255,255,255,.14)";
-  }
+  async function updateNowPlaying(){
+    // 1) DOM sanity
+    debug(
+      `DOM check: pillText=${!!pillText}, trackTitle=${!!trackTitle}, trackArtist=${!!trackArtist}, statusLine=${!!statusLine}`
+    );
 
-  function showBackup(show){
-    if (!backupBox) return;
-    backupBox.classList.toggle("show", !!show);
-  }
-
-  // ====== AUDIO ======
-  playBtn.addEventListener("click", async () => {
+    // 2) Fetch sanity
     try{
-      if (player.src !== STREAM_URL) player.src = STREAM_URL;
-
-      if (player.paused){
-        await player.play();
-        playBtn.textContent = "⏸ Pause";
-        setStatus("Broadcasting. You’re tuned in.");
-      } else {
-        player.pause();
-        playBtn.textContent = "▶ Play";
-        setStatus("Paused.");
-      }
-    }catch(e){
-      setStatus("Couldn’t start the stream.");
-      console.log(e);
-    }
-  });
-
-  stopBtn.addEventListener("click", () => {
-    player.pause();
-    try { player.currentTime = 0; } catch {}
-    playBtn.textContent = "▶ Play";
-    setStatus("Stopped.");
-  });
-
-  copyBtn.addEventListener("click", async () => {
-    try{
-      await navigator.clipboard.writeText(STREAM_URL);
-      setStatus("Stream URL copied.");
-    }catch{
-      setStatus("Couldn’t copy stream URL.");
-    }
-  });
-
-  // ====== NOW PLAYING ======
-  async function updateNowPlaying() {
-    try {
       const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
+      debug(`Fetch: HTTP ${res.status}`);
+
+      // Proves whether JS is allowed to read the response
+      const aco = res.headers.get("access-control-allow-origin");
+      debug(`CORS header: access-control-allow-origin = ${aco || "(missing)"}`);
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data = await res.json();
+      debug(`JSON OK. is_online=${data.is_online}`);
+
       const online = !!data.is_online;
 
-      setPill(online ? "ON AIR" : "OFF AIR", online);
+      if (pillText){
+        pillText.textContent = online ? "ON AIR" : "OFF AIR";
+        pillText.style.boxShadow = online
+          ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
+          : "none";
+        pillText.style.borderColor = online
+          ? "rgba(45,226,230,.45)"
+          : "rgba(255,255,255,.14)";
+      }
 
       const song = data?.now_playing?.song || {};
       if (trackTitle) trackTitle.textContent = song.title || song.text || "—";
       if (trackArtist) trackArtist.textContent = song.artist || "—";
+      if (statusLine) statusLine.textContent = online ? "Live transmission." : "Station offline.";
 
-      showBackup(false);
-      setStatus(online ? "Live transmission." : "Station offline.");
-    } catch (err) {
-      setPill("OFF AIR", false);
-      if (trackTitle) trackTitle.textContent = "—";
-      if (trackArtist) trackArtist.textContent = "—";
-      setStatus("Metadata unavailable.");
-      showBackup(true);
-      console.log("Now Playing error:", err);
+    } catch (err){
+      debug(`ERROR: ${err.message || err}`);
     }
   }
 
