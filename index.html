@@ -271,7 +271,10 @@
         </div>
       </div>
 
-      <audio id="player" preload="none" crossorigin="anonymous"></audio>
+      <audio id="player" preload="none">
+  <source src="https://a7.asurahosting.com/listen/carbon_radio/radio.mp3" type="audio/mpeg">
+</audio>
+
        <div class="backup" id="backupBox">
         <b>Metadata offline.</b>
          <div class="muted" style="margin-top:6px">
@@ -319,97 +322,130 @@
   </main>
   
   <script>
-  const NOWPLAYING_URL = "https://api.carbonradio.live/nowplaying"; // your proxy
+document.addEventListener("DOMContentLoaded", () => {
+  // ====== CONFIG ======
+  const STREAM_URL = "https://a7.asurahosting.com/listen/carbon_radio/radio.mp3";
+  const NOWPLAYING_URL = "https://api.carbonradio.live/nowplaying";
   const POLL_MS = 5000;
+
+  // ====== DOM ======
+  const player     = document.getElementById("player");
+  const playBtn    = document.getElementById("playBtn");
+  const stopBtn    = document.getElementById("stopBtn");
+  const copyBtn    = document.getElementById("copyBtn");
 
   const pillText   = document.getElementById("pillText");
   const trackTitle = document.getElementById("trackTitle");
   const trackArtist= document.getElementById("trackArtist");
   const statusLine = document.getElementById("statusLine");
-  const albumArt = document.getElementById("albumArt");
+  const sideStatus = document.getElementById("sideStatus");
+  const backupBox  = document.getElementById("backupBox");
+  const albumArt   = document.getElementById("albumArt");
 
+  const PLACEHOLDER_ART = "https://a7.asurahosting.com/public/carbon_radio/embed.png";
 
-   
-
-  async function updateNowPlaying(){
-  // 1) DOM sanity
-  debug(
-    `DOM check: pillText=${!!pillText}, trackTitle=${!!trackTitle}, trackArtist=${!!trackArtist}, statusLine=${!!statusLine}`
-  );
-
-  try{
-    // 2) Fetch sanity
-    const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
-    debug(`Fetch: HTTP ${res.status}`);
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
-    debug(`JSON OK. is_online=${data.is_online}`);
-    const art = data?.now_playing?.song?.art || "";
-
-if (albumArt) {
-  if (art) {
-    albumArt.src = art;
-    albumArt.style.opacity = "1";
-  } else {
-    // keep a placeholder (or hide it)
-    albumArt.src = "https://a7.asurahosting.com/public/carbon_radio/embed.png";
-    albumArt.style.opacity = "0.85";
+  function setStatus(msg){
+    if (statusLine) statusLine.textContent = msg;
+    if (sideStatus) sideStatus.textContent = msg;
   }
-}
 
+  function setPill(text, glow){
+    if (!pillText) return;
+    pillText.textContent = text;
+    pillText.style.boxShadow = glow
+      ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
+      : "none";
+    pillText.style.borderColor = glow
+      ? "rgba(45,226,230,.45)"
+      : "rgba(255,255,255,.14)";
+  }
 
-if (albumArt) {
-  if (art) {
-    albumArt.src = art;
+  function showBackup(show){
+    if (!backupBox) return;
+    backupBox.classList.toggle("show", !!show);
+  }
+
+  function setArt(url){
+    if (!albumArt) return;
+    albumArt.src = url || PLACEHOLDER_ART;
+    albumArt.style.opacity = url ? "1" : "0.85";
     albumArt.style.display = "block";
-  } else {
-    albumArt.removeAttribute("src");
-    albumArt.style.display = "none";
   }
-}
 
+  // ====== AUDIO ======
+  playBtn?.addEventListener("click", async () => {
+    try{
+      // Ensure a source is set even if HTML source tag was removed later
+      if (!player.currentSrc) {
+        player.src = STREAM_URL;
+      }
 
-    // 3) ONLINE STATUS
-    const online = !!data.is_online;
-
-    // 4) UPDATE PILL (this is what you’re not seeing)
-    if (pillText) {
-      pillText.textContent = online ? "ON AIR" : "OFF AIR";
-      pillText.style.boxShadow = online
-        ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
-        : "none";
+      if (player.paused){
+        await player.play();
+        playBtn.textContent = "⏸ Pause";
+        setStatus("Broadcasting. You’re tuned in.");
+      } else {
+        player.pause();
+        playBtn.textContent = "▶ Play";
+        setStatus("Paused.");
+      }
+    }catch(e){
+      console.log(e);
+      setStatus("Couldn’t start the stream.");
     }
+  });
 
-    // 5) UPDATE TRACK TEXT
-    const song = data?.now_playing?.song || {};
+  stopBtn?.addEventListener("click", () => {
+    player.pause();
+    try { player.currentTime = 0; } catch {}
+    playBtn.textContent = "▶ Play";
+    setStatus("Stopped.");
+  });
 
-    if (trackTitle) {
-      trackTitle.textContent = song.title || song.text || "—";
+  copyBtn?.addEventListener("click", async () => {
+    try{
+      await navigator.clipboard.writeText(STREAM_URL);
+      setStatus("Stream URL copied.");
+    }catch{
+      setStatus("Couldn’t copy stream URL.");
     }
+  });
 
-    if (trackArtist) {
-      trackArtist.textContent = song.artist || "—";
+  // ====== NOW PLAYING ======
+  async function updateNowPlaying(){
+    try{
+      const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+      const online = !!data.is_online;
+
+      setPill(online ? "ON AIR" : "OFF AIR", online);
+
+      const song = data?.now_playing?.song || {};
+      if (trackTitle) trackTitle.textContent = song.title || song.text || "—";
+      if (trackArtist) trackArtist.textContent = song.artist || "—";
+
+      // album art (AzuraCast commonly provides song.art)
+      const art = song.art || "";
+      setArt(art);
+
+      showBackup(false);
+      setStatus(online ? "Live transmission." : "Station offline.");
+    }catch(err){
+      console.log("NowPlaying error:", err);
+      setPill("OFF AIR", false);
+      if (trackTitle) trackTitle.textContent = "—";
+      if (trackArtist) trackArtist.textContent = "—";
+      setArt(""); // fallback art
+      showBackup(true);
+      setStatus("Metadata unavailable.");
     }
-
-    // 6) UPDATE STATUS LINE (proof JS is running)
-    if (statusLine) {
-      statusLine.textContent = online
-        ? "Live transmission."
-        : "Station offline.";
-    }
-
-  } catch (err){
-    debug(`ERROR: ${err.message || err}`);
-
-    if (pillText) pillText.textContent = "OFF AIR";
-    if (trackTitle) trackTitle.textContent = "—";
-    if (trackArtist) trackArtist.textContent = "—";
-    if (statusLine) statusLine.textContent = "Metadata unavailable.";
   }
-}
 
+  // Kick it off
+  setArt(""); // start with placeholder
   updateNowPlaying();
   setInterval(updateNowPlaying, POLL_MS);
+});
 </script>
