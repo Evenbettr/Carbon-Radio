@@ -339,6 +339,23 @@
 
     const data = await res.json();
     debug(`JSON OK. is_online=${data.is_online}`);
+    const art =
+  data?.now_playing?.song?.art ||
+  data?.now_playing?.song?.artwork ||
+  data?.now_playing?.song?.album_art ||
+  data?.now_playing?.song?.art_url ||
+  data?.now_playing?.song?.thumbnail;
+
+if (albumArt) {
+  if (art) {
+    albumArt.src = art;
+    albumArt.style.display = "block";
+  } else {
+    albumArt.removeAttribute("src");
+    albumArt.style.display = "none";
+  }
+}
+
 
     // 3) ONLINE STATUS
     const online = !!data.is_online;
