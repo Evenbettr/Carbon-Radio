@@ -54,4 +54,256 @@ header{
   width:44px;
   height:44px;
   border-radius:14px;
-  background:linear-gradient
+  background:linear-gradient(135deg,#8c73ff,#2de2e6);
+  flex-shrink:0;
+}
+
+.brandText{
+  min-width:0;
+}
+
+h1{
+  margin:0;
+  font-size:28px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.tag{
+  font-size:14px;
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.pill{
+  padding:8px 12px;
+  font-size:12px;
+  border-radius:999px;
+  border:1px solid var(--stroke);
+  white-space:nowrap;
+}
+
+/* mobile: pill drops under title */
+@media (max-width:600px){
+  .brand{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .pill{margin-top:8px}
+}
+
+/* ===== MAIN ===== */
+main{
+  max-width:980px;
+  margin:18px auto 60px;
+  padding:0 18px;
+  display:grid;
+  grid-template-columns:1.35fr .65fr;
+  gap:18px;
+}
+
+@media (max-width:860px){
+  main{grid-template-columns:1fr}
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--stroke);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:18px;
+}
+
+/* ===== PLAYER ===== */
+.playerTop{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+}
+
+/* now playing */
+.now{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  flex:1 1 auto;
+  min-width:0;
+}
+
+.label{
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+.title{
+  font-size:18px;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.artist{
+  font-size:14px;
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.small{
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* controls */
+.controls{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-shrink:0;
+}
+
+button{
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.06);
+  color:var(--ink);
+  font-weight:600;
+  cursor:pointer;
+}
+
+button:hover{
+  background:rgba(255,255,255,.1);
+}
+
+.accent{
+  background:rgba(140,115,255,.25);
+  border-color:#8c73ff;
+}
+
+/* MOBILE: controls BELOW now playing */
+@media (max-width:860px){
+  .playerTop{
+    flex-direction:column;
+  }
+  .controls{
+    margin-top:12px;
+    flex-wrap:wrap;
+    justify-content:flex-start;
+  }
+}
+
+/* ===== ASIDE ===== */
+.item{
+  background:rgba(0,0,0,.2);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  padding:12px;
+}
+
+.item b{display:block;margin-bottom:4px}
+
+a{color:var(--accent2);text-decoration:none}
+a:hover{text-decoration:underline}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">
+      <div class="mark"></div>
+      <div class="brandText">
+        <h1>Carbon Radio</h1>
+        <div class="tag">Live transmission • late-night work fuel</div>
+      </div>
+    </div>
+    <div class="pill" id="pillText">checking signal…</div>
+  </div>
+</header>
+
+<main>
+<section class="card">
+  <div class="playerTop">
+    <div class="now">
+      <div class="label">Now Playing</div>
+      <div class="title" id="trackTitle">—</div>
+      <div class="artist" id="trackArtist">—</div>
+      <div class="small" id="statusLine">Checking signal…</div>
+    </div>
+
+    <div class="controls">
+      <button class="accent" id="playBtn">▶ Play</button>
+      <button id="stopBtn">■ Stop</button>
+      <button id="copyBtn">Copy stream URL</button>
+    </div>
+  </div>
+
+  <audio id="player" preload="none">
+    <source src="https://a7.asurahosting.com/listen/carbon_radio/radio.mp3" type="audio/mpeg">
+  </audio>
+</section>
+
+<aside class="card">
+  <div class="item">
+    <b>About</b>
+    <div class="small">Minimal talk. Maximum continuity.</div>
+  </div>
+</aside>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+  const STREAM="https://a7.asurahosting.com/listen/carbon_radio/radio.mp3";
+  const API="https://api.carbonradio.live/nowplaying";
+  const player=document.getElementById("player");
+  const playBtn=document.getElementById("playBtn");
+  const stopBtn=document.getElementById("stopBtn");
+  const copyBtn=document.getElementById("copyBtn");
+  const title=document.getElementById("trackTitle");
+  const artist=document.getElementById("trackArtist");
+  const pill=document.getElementById("pillText");
+
+  playBtn.onclick=async()=>{
+    if(player.paused){
+      player.src=STREAM;
+      await player.play();
+      playBtn.textContent="⏸ Pause";
+    }else{
+      player.pause();
+      playBtn.textContent="▶ Play";
+    }
+  };
+
+  stopBtn.onclick=()=>{
+    player.pause();
+    playBtn.textContent="▶ Play";
+  };
+
+  copyBtn.onclick=()=>navigator.clipboard.writeText(STREAM);
+
+  async function update(){
+    try{
+      const r=await fetch(API,{cache:"no-store"});
+      const d=await r.json();
+      pill.textContent=d.is_online?"ON AIR":"OFF AIR";
+      title.textContent=d.now_playing.song.title||"—";
+      artist.textContent=d.now_playing.song.artist||"—";
+    }catch{}
+  }
+
+  update();
+  setInterval(update,5000);
+});
+</script>
+
+</body>
+</html>
