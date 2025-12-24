@@ -170,14 +170,24 @@
       white-space:nowrap;
     }
 
-    .controls{
+   /* Desktop: keep buttons in one line */
+.controls{
   display:flex;
   gap:10px;
   align-items:center;
-  flex-wrap:nowrap;
   justify-content:flex-end;
   flex-shrink: 0;
+  flex-wrap: nowrap;
 }
+
+/* Mobile: let buttons wrap so the title area stays wider */
+@media (max-width: 860px){
+  .controls{
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+
 
     button{
       appearance:none;
