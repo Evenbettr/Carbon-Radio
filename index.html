@@ -124,6 +124,63 @@
       transition: box-shadow .25s ease, border-color .25s ease;
       flex: 0 0 auto;
     }
+    /* ===== Motion-safe candy ===== */
+@media (prefers-reduced-motion: reduce){
+  .pill.glow { animation: none !important; }
+  .marquee__text { animation: none !important; transform: none !important; }
+}
+
+/* ON AIR pulse */
+.pill.glow{
+  animation: onAirPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes onAirPulse{
+  0%, 100%{
+    box-shadow: 0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25);
+    transform: translateZ(0);
+  }
+  50%{
+    box-shadow: 0 0 26px rgba(45,226,230,.75), 0 0 64px rgba(45,226,230,.30);
+    transform: translateZ(0);
+  }
+}
+
+/* ===== Marquee (only used when JS adds .marquee) ===== */
+.marquee{
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee__text{
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+  padding-right: 24px; /* gap at loop point */
+}
+
+/* A soft fade at edges so it feels premium */
+.marquee:before,
+.marquee:after{
+  content:"";
+  position:absolute;
+  top:0; bottom:0;
+  width:24px;
+  pointer-events:none;
+  z-index: 2;
+}
+.marquee:before{
+  left:0;
+  background: linear-gradient(90deg, rgba(5,6,13,1), rgba(5,6,13,0));
+  opacity: .45;
+}
+.marquee:after{
+  right:0;
+  background: linear-gradient(270deg, rgba(5,6,13,1), rgba(5,6,13,0));
+  opacity: .45;
+}
+
 
     /* ✅ Mobile: pill drops below title (no crowding) */
     @media (max-width: 600px){
