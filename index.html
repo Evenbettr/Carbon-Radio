@@ -162,12 +162,14 @@
     }
 
     .controls{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:nowrap;
+  justify-content:flex-end;
+  flex-shrink: 0;
+}
+
     button{
       appearance:none;
       border: 1px solid rgba(255,255,255,.18);
