@@ -20,7 +20,9 @@
       --radius: 18px;
       --shadow: 0 18px 70px rgba(0,0,0,.55);
     }
+
     *{box-sizing:border-box}
+
     body{
       margin:0;
       color:var(--ink);
@@ -33,6 +35,7 @@
       min-height:100vh;
       overflow-x:hidden;
     }
+
     .stars:before, .stars:after{
       content:"";
       position:fixed;
@@ -50,7 +53,11 @@
       pointer-events:none;
       transform: translate3d(0,0,0);
     }
-    .stars:after{opacity:.18; animation-duration: 40s; transform: translate3d(-20px,10px,0)}
+    .stars:after{
+      opacity:.18;
+      animation-duration: 40s;
+      transform: translate3d(-20px,10px,0);
+    }
     @keyframes drift{
       from{transform: translate3d(0,0,0)}
       to{transform: translate3d(80px,40px,0)}
@@ -61,18 +68,23 @@
       margin: 42px auto 0;
       padding: 0 18px;
     }
+
     .brand{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:14px;
       margin-bottom: 18px;
+      min-width: 0;
     }
+
     .logo{
       display:flex;
       gap:12px;
       align-items:center;
+      min-width: 0;
     }
+
     .mark{
       width:44px;height:44px;
       border-radius: 14px;
@@ -82,17 +94,31 @@
         linear-gradient(135deg, rgba(140,115,255,.45), rgba(45,226,230,.25));
       border: 1px solid var(--stroke);
       box-shadow: 0 0 0 6px rgba(140,115,255,.10), 0 18px 60px rgba(140,115,255,.16);
+      flex: 0 0 auto;
     }
+
+    .brandText{
+      min-width: 0;
+    }
+
     h1{
       font-size: clamp(22px, 3.6vw, 34px);
       margin:0;
       letter-spacing: .4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+
     .tag{
       color:var(--muted);
       font-size: 14px;
       margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+
     .pill{
       font-size: 12px;
       color: var(--muted);
@@ -102,6 +128,18 @@
       border-radius: 999px;
       white-space:nowrap;
       transition: box-shadow .25s ease, border-color .25s ease;
+      flex: 0 0 auto;
+    }
+
+    /* ✅ Mobile fix: stop pill from crowding the brand text */
+    @media (max-width: 600px){
+      .brand{
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .pill{
+        margin-top: 10px;
+      }
     }
 
     main{
@@ -115,6 +153,7 @@
     @media (max-width: 860px){
       main{grid-template-columns:1fr}
     }
+
     .card{
       background: var(--card);
       border: 1px solid var(--stroke);
@@ -125,33 +164,28 @@
     }
 
     .playerTop{
-      .playerTop{
-  align-items:center;
-}
-
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
       gap: 14px;
       margin-bottom: 12px;
     }
-    .now{
-      .now{
-  flex: 1 1 auto;
-  min-width: 0;
-}
 
+    .now{
       display:flex;
       flex-direction:column;
       gap: 6px;
+      flex: 1 1 auto;
       min-width: 0;
     }
+
     .now .label{
       color: var(--muted);
       font-size: 12px;
       letter-spacing: .18em;
       text-transform: uppercase;
     }
+
     .now .title{
       font-size: 18px;
       font-weight: 650;
@@ -161,6 +195,7 @@
       text-overflow:ellipsis;
       white-space:nowrap;
     }
+
     .artist{
       color: var(--muted);
       font-size: 14px;
@@ -170,24 +205,24 @@
       white-space:nowrap;
     }
 
-   /* Desktop: keep buttons in one line */
-.controls{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  justify-content:flex-end;
-  flex-shrink: 0;
-  flex-wrap: nowrap;
-}
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+      flex-shrink: 0;
+      flex-wrap: nowrap; /* desktop */
+    }
 
-/* Mobile: let buttons wrap so the title area stays wider */
-@media (max-width: 860px){
-  .controls{
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-}
-
+    @media (max-width: 860px){
+      .controls{
+        flex-wrap: wrap;          /* mobile */
+        justify-content:flex-start;
+      }
+      .playerTop{
+        align-items: center;
+      }
+    }
 
     button{
       appearance:none;
@@ -199,7 +234,11 @@
       cursor:pointer;
       font-weight:600;
     }
-    button:hover{border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.09)}
+    button:hover{
+      border-color: rgba(255,255,255,.28);
+      background: rgba(255,255,255,.09);
+    }
+
     .accent{
       border-color: rgba(140,115,255,.55);
       background: rgba(140,115,255,.18);
@@ -231,23 +270,22 @@
     .backup.show{display:block}
 
     .artWrap{
-  margin-top: 10px;
-  width: 88px;
-  height: 88px;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.18);
-  box-shadow: 0 18px 60px rgba(0,0,0,.35);
-}
-.albumArt{
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.albumArt:empty { display:none; }
-
+      margin-top: 10px;
+      width: 88px;
+      height: 88px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+    }
+    .albumArt{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .albumArt:empty { display:none; }
   </style>
 </head>
 
@@ -256,7 +294,7 @@
     <div class="brand">
       <div class="logo">
         <div class="mark" aria-hidden="true"></div>
-        <div>
+        <div class="brandText">
           <h1>Carbon Radio</h1>
           <div class="tag">Live transmission • late-night work fuel</div>
         </div>
@@ -273,19 +311,18 @@
           <p class="title" id="trackTitle">—</p>
           <p class="artist" id="trackArtist">—</p>
           <div class="small" id="statusLine">Checking signal…</div>
-              <div class="artWrap">
-  <img
-    id="albumArt"
-    class="albumArt"
-    src="https://a7.asurahosting.com/public/carbon_radio/embed.png"
-    alt=""
-  />
-</div>
 
+          <div class="artWrap">
+            <img
+              id="albumArt"
+              class="albumArt"
+              src="https://a7.asurahosting.com/public/carbon_radio/embed.png"
+              alt=""
+            />
+          </div>
         </div>
 
-        
-       <div class="controls">
+        <div class="controls">
           <button class="accent" id="playBtn">▶ Play</button>
           <button id="stopBtn">■ Stop</button>
           <button id="copyBtn">Copy stream URL</button>
@@ -293,16 +330,15 @@
       </div>
 
       <audio id="player" preload="none">
-  <source src="https://a7.asurahosting.com/listen/carbon_radio/radio.mp3" type="audio/mpeg">
-</audio>
+        <source src="https://a7.asurahosting.com/listen/carbon_radio/radio.mp3" type="audio/mpeg">
+      </audio>
 
-       <div class="backup" id="backupBox">
+      <div class="backup" id="backupBox">
         <b>Metadata offline.</b>
-         <div class="muted" style="margin-top:6px">
-            Stream is live, but “Now Playing” can’t be reached.
-       </div>
+        <div class="muted" style="margin-top:6px">
+          Stream is live, but “Now Playing” can’t be reached.
+        </div>
       </div>
-
     </section>
 
     <aside class="card">
@@ -341,132 +377,129 @@
       </div>
     </aside>
   </main>
-  
+
   <script>
-document.addEventListener("DOMContentLoaded", () => {
-  // ====== CONFIG ======
-  const STREAM_URL = "https://a7.asurahosting.com/listen/carbon_radio/radio.mp3";
-  const NOWPLAYING_URL = "https://api.carbonradio.live/nowplaying";
-  const POLL_MS = 5000;
+    document.addEventListener("DOMContentLoaded", () => {
+      // ====== CONFIG ======
+      const STREAM_URL = "https://a7.asurahosting.com/listen/carbon_radio/radio.mp3";
+      const NOWPLAYING_URL = "https://api.carbonradio.live/nowplaying";
+      const POLL_MS = 5000;
 
-  // ====== DOM ======
-  const player     = document.getElementById("player");
-  const playBtn    = document.getElementById("playBtn");
-  const stopBtn    = document.getElementById("stopBtn");
-  const copyBtn    = document.getElementById("copyBtn");
+      // ====== DOM ======
+      const player      = document.getElementById("player");
+      const playBtn     = document.getElementById("playBtn");
+      const stopBtn     = document.getElementById("stopBtn");
+      const copyBtn     = document.getElementById("copyBtn");
 
-  const pillText   = document.getElementById("pillText");
-  const trackTitle = document.getElementById("trackTitle");
-  const trackArtist= document.getElementById("trackArtist");
-  const statusLine = document.getElementById("statusLine");
-  const sideStatus = document.getElementById("sideStatus");
-  const backupBox  = document.getElementById("backupBox");
-  const albumArt   = document.getElementById("albumArt");
+      const pillText    = document.getElementById("pillText");
+      const trackTitle  = document.getElementById("trackTitle");
+      const trackArtist = document.getElementById("trackArtist");
+      const statusLine  = document.getElementById("statusLine");
+      const sideStatus  = document.getElementById("sideStatus");
+      const backupBox   = document.getElementById("backupBox");
+      const albumArt    = document.getElementById("albumArt");
 
-  const PLACEHOLDER_ART = "https://a7.asurahosting.com/public/carbon_radio/embed.png";
+      const PLACEHOLDER_ART = "https://a7.asurahosting.com/public/carbon_radio/embed.png";
 
-  function setStatus(msg){
-    if (statusLine) statusLine.textContent = msg;
-    if (sideStatus) sideStatus.textContent = msg;
-  }
-
-  function setPill(text, glow){
-    if (!pillText) return;
-    pillText.textContent = text;
-    pillText.style.boxShadow = glow
-      ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
-      : "none";
-    pillText.style.borderColor = glow
-      ? "rgba(45,226,230,.45)"
-      : "rgba(255,255,255,.14)";
-  }
-
-  function showBackup(show){
-    if (!backupBox) return;
-    backupBox.classList.toggle("show", !!show);
-  }
-
-  function setArt(url){
-    if (!albumArt) return;
-    albumArt.src = url || PLACEHOLDER_ART;
-    albumArt.style.opacity = url ? "1" : "0.85";
-    albumArt.style.display = "block";
-  }
-
-  // ====== AUDIO ======
-  playBtn?.addEventListener("click", async () => {
-    try{
-      // Ensure a source is set even if HTML source tag was removed later
-      if (!player.currentSrc) {
-        player.src = STREAM_URL;
+      function setStatus(msg){
+        if (statusLine) statusLine.textContent = msg;
+        if (sideStatus) sideStatus.textContent = msg;
       }
 
-      if (player.paused){
-        await player.play();
-        playBtn.textContent = "⏸ Pause";
-        setStatus("Broadcasting. You’re tuned in.");
-      } else {
+      function setPill(text, glow){
+        if (!pillText) return;
+        pillText.textContent = text;
+        pillText.style.boxShadow = glow
+          ? "0 0 18px rgba(45,226,230,.55), 0 0 44px rgba(45,226,230,.25)"
+          : "none";
+        pillText.style.borderColor = glow
+          ? "rgba(45,226,230,.45)"
+          : "rgba(255,255,255,.14)";
+      }
+
+      function showBackup(show){
+        if (!backupBox) return;
+        backupBox.classList.toggle("show", !!show);
+      }
+
+      function setArt(url){
+        if (!albumArt) return;
+        albumArt.src = url || PLACEHOLDER_ART;
+        albumArt.style.opacity = url ? "1" : "0.85";
+        albumArt.style.display = "block";
+      }
+
+      // ====== AUDIO ======
+      playBtn?.addEventListener("click", async () => {
+        try{
+          if (!player.currentSrc) player.src = STREAM_URL;
+
+          if (player.paused){
+            await player.play();
+            playBtn.textContent = "⏸ Pause";
+            setStatus("Broadcasting. You’re tuned in.");
+          } else {
+            player.pause();
+            playBtn.textContent = "▶ Play";
+            setStatus("Paused.");
+          }
+        }catch(e){
+          console.log(e);
+          setStatus("Couldn’t start the stream.");
+        }
+      });
+
+      stopBtn?.addEventListener("click", () => {
         player.pause();
+        try { player.currentTime = 0; } catch {}
         playBtn.textContent = "▶ Play";
-        setStatus("Paused.");
+        setStatus("Stopped.");
+      });
+
+      copyBtn?.addEventListener("click", async () => {
+        try{
+          await navigator.clipboard.writeText(STREAM_URL);
+          setStatus("Stream URL copied.");
+        }catch{
+          setStatus("Couldn’t copy stream URL.");
+        }
+      });
+
+      // ====== NOW PLAYING ======
+      async function updateNowPlaying(){
+        try{
+          const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+          const data = await res.json();
+          const online = !!data.is_online;
+
+          setPill(online ? "ON AIR" : "OFF AIR", online);
+
+          const song = data?.now_playing?.song || {};
+          if (trackTitle)  trackTitle.textContent  = song.title || song.text || "—";
+          if (trackArtist) trackArtist.textContent = song.artist || "—";
+
+          const art = song.art || "";
+          setArt(art);
+
+          showBackup(false);
+          setStatus(online ? "Live transmission." : "Station offline.");
+        }catch(err){
+          console.log("NowPlaying error:", err);
+          setPill("OFF AIR", false);
+          if (trackTitle) trackTitle.textContent = "—";
+          if (trackArtist) trackArtist.textContent = "—";
+          setArt("");
+          showBackup(true);
+          setStatus("Metadata unavailable.");
+        }
       }
-    }catch(e){
-      console.log(e);
-      setStatus("Couldn’t start the stream.");
-    }
-  });
 
-  stopBtn?.addEventListener("click", () => {
-    player.pause();
-    try { player.currentTime = 0; } catch {}
-    playBtn.textContent = "▶ Play";
-    setStatus("Stopped.");
-  });
-
-  copyBtn?.addEventListener("click", async () => {
-    try{
-      await navigator.clipboard.writeText(STREAM_URL);
-      setStatus("Stream URL copied.");
-    }catch{
-      setStatus("Couldn’t copy stream URL.");
-    }
-  });
-
-  // ====== NOW PLAYING ======
-  async function updateNowPlaying(){
-    try{
-      const res = await fetch(`${NOWPLAYING_URL}?t=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const data = await res.json();
-      const online = !!data.is_online;
-
-      setPill(online ? "ON AIR" : "OFF AIR", online);
-
-      const song = data?.now_playing?.song || {};
-      if (trackTitle) trackTitle.textContent = song.title || song.text || "—";
-      if (trackArtist) trackArtist.textContent = song.artist || "—";
-
-      // album art (AzuraCast commonly provides song.art)
-      const art = song.art || "";
-      setArt(art);
-
-      showBackup(false);
-      setStatus(online ? "Live transmission." : "Station offline.");
-    }catch(err){
-      console.log("NowPlaying error:", err);
-      setPill("OFF AIR", false);
-      if (trackTitle) trackTitle.textContent = "—";
-      if (trackArtist) trackArtist.textContent = "—";
-      setArt(""); // fallback art
-      showBackup(true);
-      setStatus("Metadata unavailable.");
-    }
-  }
-
-  // Kick it off
-  setArt(""); // start with placeholder
-  updateNowPlaying();
-  setInterval(updateNowPlaying, POLL_MS);
-});
-</script>
+      setArt("");
+      updateNowPlaying();
+      setInterval(updateNowPlaying, POLL_MS);
+    });
+  </script>
+</body>
+</html>
