@@ -162,67 +162,41 @@
       padding: 18px;
       backdrop-filter: blur(10px);
     }
+.playerTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
 
-    .playerTop{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 14px;
-      margin-bottom: 12px;
-    }
+.now{
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+  flex: 1 1 auto;   /* ✅ gives the title room */
+  min-width: 0;     /* ✅ required for ellipsis in flex children */
+}
 
-    .now{
-      display:flex;
-      flex-direction:column;
-      gap: 6px;
-      flex: 1 1 auto;
-      min-width: 0;
-    }
+.controls{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:flex-end;
+  flex: 0 0 auto;   /* ✅ don’t let buttons steal weird flex math */
+  flex-wrap: nowrap; /* desktop */
+}
 
-    .now .label{
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-    }
+@media (max-width: 860px){
+  .controls{
+    flex-wrap: wrap;          /* mobile */
+    justify-content:flex-start;
+  }
+  .playerTop{
+    align-items: center;
+  }
+}
 
-    .now .title{
-      font-size: 18px;
-      font-weight: 650;
-      line-height: 1.2;
-      margin:0;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-
-    .artist{
-      color: var(--muted);
-      font-size: 14px;
-      margin: 0;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-
-    .controls{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:flex-end;
-      flex-shrink: 0;
-      flex-wrap: nowrap; /* desktop */
-    }
-
-    @media (max-width: 860px){
-      .controls{
-        flex-wrap: wrap;          /* mobile */
-        justify-content:flex-start;
-      }
-      .playerTop{
-        align-items: center;
-      }
-    }
 
     button{
       appearance:none;
