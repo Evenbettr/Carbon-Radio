@@ -479,6 +479,46 @@
         albumArt.style.opacity = url ? "1" : "0.85";
         albumArt.style.display = "block";
       }
+      function applyMarquee(el, speedPxPerSec = 55){
+  if (!el) return;
+
+  // Reset
+  el.classList.remove("marquee");
+  el.style.setProperty("--marquee-duration", "");
+  el.innerHTML = el.textContent || "";
+
+  const text = el.textContent || "";
+  if (!text.trim()) return;
+
+  // Build structure
+  const span = document.createElement("span");
+  span.className = "marquee__text";
+  span.textContent = text;
+
+  el.textContent = "";
+  el.appendChild(span);
+
+  // Only marquee if it overflows
+  // Need a tick so layout is measurable
+  requestAnimationFrame(() => {
+    const overflow = el.scrollWidth > el.clientWidth + 8;
+    if (!overflow) return;
+
+    el.classList.add("marquee");
+
+    // Duplicate for seamless loop
+    const clone = span.cloneNode(true);
+    el.appendChild(clone);
+
+    // Duration based on content width
+    const distance = span.offsetWidth + 24; // includes padding-right
+    const duration = Math.max(6, distance / speedPxPerSec); // seconds, min 6
+    span.style.animation = `marqueeScroll ${duration}s linear infinite`;
+    clone.style.animation = `marqueeScroll ${duration}s linear infinite`;
+    clone.style.animationDelay = `${duration/2}s`; // stagger for smoother loop
+  });
+}
+
 
       // ====== AUDIO ======
       playBtn?.addEventListener("click", async () => {
